@@ -89,7 +89,25 @@ func worker(id int, args []string, ctx context.Context, ret *atomic.Int32) {
 	}
 }
 
+// isTestBinary reports whether args come from a `go test` run. It keys on the
+// -test.* flags the testing package passes, which works on every GOOS (the
+// binary name differs there: gost.test, gost.test.exe, or a renamed copy).
+func isTestBinary(args []string) bool {
+	for _, arg := range args {
+		if strings.HasPrefix(arg, "-test.") {
+			return true
+		}
+	}
+	return false
+}
+
 func init() {
+	// The testing package parses its own flags after package init; parsing our
+	// flags here would reject the -test.* flags and exit.
+	if isTestBinary(os.Args) {
+		return
+	}
+
 	var printVersion bool
 
 	flag.Var(&services, "L", "service list")
@@ -106,12 +124,22 @@ func init() {
 
 	if printVersion {
 		fmt.Fprintf(os.Stdout, "gost %s (%s %s/%s)\n",
-			version, runtime.Version(), runtime.GOOS, runtime.GOARCH)
+			getVersion(), runtime.Version(), runtime.GOOS, runtime.GOARCH)
 		os.Exit(0)
 	}
 }
 
 func main() {
+	// Disable Multipath TCP by default to mitigate CVE-2026-98432.
+	// Listeners opt in explicitly via their "mptcp" metadata.
+	if v := os.Getenv("GODEBUG"); !strings.Contains(v, "multipathtcp") {
+		if v == "" {
+			os.Setenv("GODEBUG", "multipathtcp=0")
+		} else {
+			os.Setenv("GODEBUG", v+",multipathtcp=0")
+		}
+	}
+
 	log := xlogger.NewLogger()
 	logger.SetDefault(log)
 
