@@ -17,6 +17,7 @@ import (
 	_ "github.com/go-gost/x/connector/ss/udp"
 	_ "github.com/go-gost/x/connector/sshd"
 	_ "github.com/go-gost/x/connector/tcp"
+	_ "github.com/go-gost/x/connector/trojan"
 	_ "github.com/go-gost/x/connector/tunnel"
 	_ "github.com/go-gost/x/connector/unix"
 
@@ -103,9 +104,9 @@ import (
 	_ "github.com/go-gost/x/listener/rudp"
 	_ "github.com/go-gost/x/listener/runix"
 	_ "github.com/go-gost/x/listener/serial"
-	_ "github.com/go-gost/x/listener/stdio"
 	_ "github.com/go-gost/x/listener/ssh"
 	_ "github.com/go-gost/x/listener/sshd"
+	_ "github.com/go-gost/x/listener/stdio"
 	_ "github.com/go-gost/x/listener/tap"
 	_ "github.com/go-gost/x/listener/tcp"
 	_ "github.com/go-gost/x/listener/tls"
